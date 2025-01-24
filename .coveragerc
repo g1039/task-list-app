@@ -1,0 +1,5 @@
+[report]
+omit =
+	*migrations*
+	webapp/**/factories.py
+	manage.py

@@ -1,0 +1,8 @@
+black
+coveralls
+isort
+pre-commit
+pytest
+pytest-django
+pytest-cov
+pytest-xdist
