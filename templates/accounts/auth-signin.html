@@ -1,0 +1,37 @@
+{% load widget_tweaks %}
+
+<form method="POST">
+    {% csrf_token %}
+    {% if form.non_field_errors %}
+    {% for error in form.non_field_errors  %}
+    <small class="text-danger mb-3">{{ error }}</small>
+    {% endfor %}
+    {% endif %}
+    <div>
+        <div>
+        <label><strong>Email Address:</strong></label>
+        <input type="text" class="form-control" name="{{form.username.name}}" placeholder="Email Address">
+        </div>
+            <span class="form_error">{{ form.username.errors}}</span>
+    </div>
+    <div>
+        <div>
+            <label><strong>Password:</strong></label>
+            <input type="password" class="form-control" name="{{form.password.name}}" placeholder="Password">
+        </div>
+            <span class="form_error">{{ form.password.errors }}</span>
+    </div>
+    <button type="submit">
+        Login
+    </button>
+    <a href="{% url 'home' %}">
+        Cancel
+    </a>
+    <hr>
+    <div>
+        <a class="small" href="{% url 'forgot_password' %}">Forgot Password?</a>
+    </div>
+    <div>
+        <a class="small" href="{% url 'register' %}">Create an Account</a>
+    </div>
+</form>
