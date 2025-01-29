@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     # third party
     "widget_tweaks",
+    "django_select2",
     # local apps
     "webapp.accounts.apps.AccountsConfig",
     "webapp.tasktrack.apps.TasktrackConfig",

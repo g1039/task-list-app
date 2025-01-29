@@ -85,6 +85,12 @@
             autoclose: true,
             todayHighlight: true
         });
+
+        $('#id_assigned_to').select2({
+            placeholder: "Select a user",
+            allowClear: true,
+            width: '100%'
+        });
     });
 </script>
 {% endblock content %}
