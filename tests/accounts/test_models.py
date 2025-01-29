@@ -5,8 +5,8 @@ from webapp.accounts.models import Reference
 
 
 def test_custom_user_str_() -> None:
-    instance = CustomUserFactory.build()
-    assert str(instance) == instance.username
+    instance = CustomUserFactory.build(first_name="Foo", last_name="Bob")
+    assert str(instance) == f"{instance.first_name} {instance.last_name}"
 
 
 @pytest.mark.parametrize(
