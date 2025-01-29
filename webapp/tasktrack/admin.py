@@ -2,11 +2,24 @@
 
 from typing import Any
 
+from django import forms
 from django.contrib import admin
 from django.http import HttpRequest
 from django.utils import timezone
+from django_select2.forms import Select2Widget
 
 from webapp.tasktrack.models import Priority, Status, Task
+
+
+class TaskAdminForm(forms.ModelForm):
+    """Enable Select2 in admin."""
+
+    class Meta:
+        model = Task
+        fields = "__all__"
+        widgets = {
+            "assigned_to": Select2Widget,
+        }
 
 
 @admin.register(Priority)
@@ -44,6 +57,8 @@ class StatusAdmin(admin.ModelAdmin):
 @admin.register(Task)
 class TaskAdmin(admin.ModelAdmin):
     """Custom admin class for task model."""
+
+    form = TaskAdminForm
 
     list_display = (
         "title",

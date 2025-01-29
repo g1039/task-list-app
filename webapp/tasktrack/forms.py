@@ -3,6 +3,7 @@
 import datetime
 
 from django import forms
+from django_select2.forms import Select2Widget
 
 from webapp.accounts.models import CustomUser
 from webapp.tasktrack.models import Priority, Status, Task
@@ -29,7 +30,7 @@ class CreateTaskForm(forms.Form):
         queryset=Priority.objects.all(),
     )
     assigned_to = forms.ModelChoiceField(
-        queryset=CustomUser.objects.filter(is_active=True),
+        queryset=CustomUser.objects.filter(is_active=True), widget=Select2Widget
     )
 
     def clean_due_date(self) -> str:
@@ -67,7 +68,7 @@ class TaskUpdateForm(forms.ModelForm):
         queryset=Status.objects.all(),
     )
     assigned_to = forms.ModelChoiceField(
-        queryset=CustomUser.objects.filter(is_active=True),
+        queryset=CustomUser.objects.filter(is_active=True), widget=Select2Widget
     )
 
     class Meta:

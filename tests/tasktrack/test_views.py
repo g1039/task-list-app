@@ -113,7 +113,7 @@ class TestDashboardView:
         self, client: Client
     ) -> None:
 
-        user = CustomUserFactory()
+        user = CustomUserFactory(is_superuser=True)
         client.force_login(user)
 
         response = client.get(reverse("dashboard"))
@@ -140,13 +140,15 @@ class TestDashboardView:
             3,
             status=panding_status,
             priority=low_priority,
-            due_date=datetime.date(2025, 1, 1),
+            due_date=timezone.now().date(),
+            created_at=datetime.date(2025, 1, 1),
         )
         TaskFactory.create_batch(
             2,
             status=in_progress_status,
             priority=medium_priority,
             due_date=datetime.date(2025, 2, 1),
+            created_at=datetime.date(2025, 1, 1),
         )
         TaskFactory.create_batch(
             5,
@@ -154,12 +156,14 @@ class TestDashboardView:
             priority=high_priority,
             due_date=datetime.date(2025, 3, 15),
             updated_at=datetime.date(2025, 3, 10),
+            created_at=datetime.date(2025, 1, 1),
         )
         TaskFactory.create_batch(
             1,
             status=cancelled_status,
             priority=critical_priority,
             due_date=datetime.date(2025, 4, 1),
+            created_at=datetime.date(2025, 1, 1),
         )
 
         request = rf.get(reverse("dashboard"))
@@ -254,7 +258,7 @@ class TestTaskView:
 
     def test_task_view_renders_for_authenticated_user(self, client: Client) -> None:
 
-        user = CustomUserFactory()
+        user = CustomUserFactory(is_superuser=True)
         client.force_login(user)
 
         response = client.get(reverse("tasks"))
@@ -263,7 +267,7 @@ class TestTaskView:
 
     def test_task_view_context_data(self, client: Client) -> None:
 
-        user = CustomUserFactory()
+        user = CustomUserFactory(is_superuser=True)
         client.force_login(user)
 
         low_priority = PriorityFactory(name=PriorityLevel.LOW)
@@ -300,7 +304,7 @@ class TestCreateTaskView:
         self, client: Client
     ) -> None:
 
-        user = CustomUserFactory()
+        user = CustomUserFactory(is_superuser=True)
         client.force_login(user)
 
         response = client.get(reverse("create_task"))
@@ -563,7 +567,7 @@ class TestDeleteTaskView:
         self, client: Client
     ) -> None:
 
-        user = CustomUserFactory()
+        user = CustomUserFactory(is_superuser=True)
         client.force_login(user)
 
         non_existent_task_id = 1111

@@ -8,6 +8,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpRequest, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse, reverse_lazy
+from django.utils.decorators import method_decorator
 from django.views.decorators.http import require_http_methods
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import FormView
@@ -16,6 +17,7 @@ from webapp.tasktrack import services
 from webapp.tasktrack.enums import StatusType
 from webapp.tasktrack.forms import CreateTaskForm, TaskUpdateForm
 from webapp.tasktrack.models import Task
+from webapp.tasktrack.permissions import limit_access
 
 
 class HomeView(LoginRequiredMixin, TemplateView):
@@ -56,6 +58,7 @@ class HomeView(LoginRequiredMixin, TemplateView):
         return context
 
 
+@method_decorator(limit_access, name="get")
 class DashboardView(LoginRequiredMixin, TemplateView):
     """Dashboard page view."""
 
@@ -222,6 +225,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         return context
 
 
+@method_decorator(limit_access, name="get")
 class TaskView(LoginRequiredMixin, TemplateView):
     """Task page view."""
 
@@ -251,6 +255,7 @@ class TaskView(LoginRequiredMixin, TemplateView):
         return context
 
 
+@method_decorator(limit_access, name="get")
 class CreateTaskView(LoginRequiredMixin, FormView):
     """Create task view."""
 
@@ -328,6 +333,7 @@ def task_update_view(request: HttpRequest, pk: int) -> HttpResponseRedirect:
 
 @login_required
 @require_http_methods(["POST", "GET"])
+@limit_access
 def delete_task_view(request: HttpRequest, pk: int) -> HttpResponseRedirect:
     """Delete task view."""
 
