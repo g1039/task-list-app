@@ -72,8 +72,10 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         default_manager_name = "objects"
 
     def __str__(self) -> str:
-        """Return the username."""
+        """Return the first and last name if they exist, else return the username."""
 
+        if self.first_name and self.last_name:
+            return f"{self.first_name} {self.last_name}"
         return self.username
 
     def clean(self) -> None:

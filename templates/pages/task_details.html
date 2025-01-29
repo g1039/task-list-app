@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% load custom_tags %}
+
+{% block title %}Tasks{% endblock title %}
+{% block content %}
+<div class="container-fluid">
+
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card shadow mb-4">
+                <div
+                    class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">{{ task.title }}</h6>
+                    <div class="dropdown no-arrow">
+                        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
+                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                        </a>
+                        {% if task.status.name != 'COMPLETED' %}
+                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
+                            aria-labelledby="dropdownMenuLink">
+                            <div class="dropdown-header">Actions</div>
+                            <a class="dropdown-item" href="{% url 'task_update' task.pk %}">Edit</a>
+                            {% if user.is_superuser %}
+                            <a class="dropdown-item" href="{% url 'delete_task' task.pk %}">Delete</a>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="card-body">
+                   <p><strong>Due Date</strong><br>
+                    {{ task.due_date|date:"Y-m-d" }}</p>
+                   <p><strong>Discription</strong><br>
+                    {{ task.description }}</p>
+                   <p><strong>Priority</strong><br>
+                    <span class="badge badge-{{ task.priority.priority_level_colour }}">{{ task.priority }}</span></p>
+                   <p><strong>Status</strong><br>
+                    <span class="badge badge-{{ task.status.status_colour }}">{{ task.status }}</span></p>
+                   <p><strong>Assigned To</strong><br>
+                    {{ task.assigned_to|user_display:request.user }}</p>
+                   <p><strong>Created By</strong><br>
+                    {{ task.created_by|user_display:request.user }}</p>
+                   <p><strong>Updated By</strong><br>
+                    {{ task.updated_by|user_display:request.user }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

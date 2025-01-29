@@ -1,0 +1,179 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard{% endblock title %}
+{% block content %}
+<div class="container-fluid">
+
+<div class="row">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-warning shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                            Pending</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ task_counts.pending }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-calendar fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-info shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                            In Progress</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ task_counts.in_progress }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-sync fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Completed
+                        </div>
+                        <div class="row no-gutters align-items-center">
+                            <div class="col-auto">
+                                <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">{{ task_counts.completed }}</div>
+                            </div>
+                            <div class="col">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-clipboard-check fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-danger shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                            Cancelled</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ task_counts.cancelled}}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-times-circle fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+
+    <div class="col-xl-8 col-lg-7">
+        <div class="card shadow mb-4">
+            <div
+                class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Monthly Overview of Completed Tasks</h6>
+            </div>
+            <div class="card-body">
+                <div class="chart-area">
+                    <canvas id="myAreaChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Monthly Overview of Due Tasks</h6>
+            </div>
+            <div class="card-body">
+                <div class="chart-bar">
+                    <canvas id="myBarChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-4 col-lg-5">
+        <div class="card shadow mb-4">
+            <div
+                class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Priority</h6>
+            </div>
+            <div class="card-body">
+                <div class="chart-pie pt-4 pb-2">
+                    <canvas id="myPieChart"></canvas>
+                </div>
+                <div class="mt-4 text-center small">
+                    <span class="mr-2">
+                        <i class="fas fa-circle text-warning"></i> Low
+                    </span>
+                    <span class="mr-2">
+                        <i class="fas fa-circle text-info"></i> Medium
+                    </span>
+                    <span class="mr-2">
+                        <i class="fas fa-circle text-success"></i> High
+                    </span>
+                    <span class="mr-2">
+                        <i class="fas fa-circle text-danger"></i> Critical
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+</div>
+
+<script>
+    const taskData = {
+        lowPriorityTasksCount: {{ task_counts.low_priority|safe }},
+        mediumPriorityTasksCount: {{ task_counts.medium_priority|safe }},
+        highPriorityTasksCount: {{ task_counts.high_priority|safe }},
+        criticalPriorityTasksCount: {{ task_counts.critical_priority|safe }}
+    };
+    const dueTasksData = {
+        janDueTasksCount: {{ due_tasks_count_by_month.jan_due_tasks|safe }},
+        febDueTasksCount: {{ due_tasks_count_by_month.feb_due_tasks|safe }},
+        marDueTasksCount: {{ due_tasks_count_by_month.mar_due_tasks|safe }},
+        aprDueTasksCount: {{ due_tasks_count_by_month.apr_due_tasks|safe }},
+        mayDueTasksCount: {{ due_tasks_count_by_month.may_due_tasks|safe }},
+        junDueTasksCount: {{ due_tasks_count_by_month.jun_due_tasks|safe }},
+        julDueTasksCount: {{ due_tasks_count_by_month.jul_due_tasks|safe }},
+        augDueTasksCount: {{ due_tasks_count_by_month.aug_due_tasks|safe }},
+        sepDueTasksCount: {{ due_tasks_count_by_month.sep_due_tasks|safe }},
+        octDueTasksCount: {{ due_tasks_count_by_month.oct_due_tasks|safe }},
+        novDueTasksCount: {{ due_tasks_count_by_month.nov_due_tasks|safe }},
+        decDueTasksCount: {{ due_tasks_count_by_month.dec_due_tasks|safe }}
+    }
+
+    const completedTasksData = {
+        janCompletedTasksCount: {{ completed_tasks_count_by_month.jan_completed_tasks|safe }},
+        febCompletedTasksCount: {{ completed_tasks_count_by_month.feb_completed_tasks|safe }},
+        marCompletedTasksCount: {{ completed_tasks_count_by_month.mar_completed_tasks|safe }},
+        aprCompletedTasksCount: {{ completed_tasks_count_by_month.apr_completed_tasks|safe }},
+        mayCompletedTasksCount: {{ completed_tasks_count_by_month.may_completed_tasks|safe }},
+        junCompletedTasksCount: {{ completed_tasks_count_by_month.jun_completed_tasks|safe }},
+        julCompletedTasksCount: {{ completed_tasks_count_by_month.jul_completed_tasks|safe }},
+        augCompletedTasksCount: {{ completed_tasks_count_by_month.aug_completed_tasks|safe }},
+        sepCompletedTasksCount: {{ completed_tasks_count_by_month.sep_completed_tasks|safe }},
+        octCompletedTasksCount: {{ completed_tasks_count_by_month.oct_completed_tasks|safe }},
+        novCompletedTasksCount: {{ completed_tasks_count_by_month.nov_completed_tasks|safe }},
+        decCompletedTasksCount: {{ completed_tasks_count_by_month.dec_completed_tasks|safe }}
+    }
+</script>
+
+{% endblock content %}

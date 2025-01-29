@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+{% load custom_tags %}
+
+{% block title %}Tasks{% endblock title %}
+{% block content %}
+<div class="container-fluid">
+
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-2 text-gray-800">Tasks</h1>
+        <a href="{% url 'create_task' %}" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i class="fa fa-plus" aria-hidden="true"></i> Create Task</a>
+    </div>
+
+<div class="row">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-warning shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                            Pending</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ task_counts.pending }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-calendar fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-info shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                            In Progress</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ task_counts.in_progress }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-sync fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Completed
+                        </div>
+                        <div class="row no-gutters align-items-center">
+                            <div class="col-auto">
+                                <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">{{ task_counts.completed }}</div>
+                            </div>
+                            <div class="col">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-clipboard-check fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-danger shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                            Cancelled</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ task_counts.cancelled }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-times-circle fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if task_list %}
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">List of Tasks</h6>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th style="white-space: nowrap;">Due date</th>
+                        <th>Priority</th>
+                        <th>Status</th>
+                        <th style="white-space: nowrap;">Assigned to</th>
+                        <th style="white-space: nowrap;">created by</th>
+                        <th style="white-space: nowrap;">Updated by</th>
+                        <th style="white-space: nowrap;">Created at</th>
+                        <th style="white-space: nowrap;">Updated at</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for task in task_list %}
+                    <tr>
+                        <td>{{ task.title }}</td>
+                        <td>{{ task.due_date|date:"Y-m-d" }}</td>
+                        <td><span class="badge badge-{{ task.priority.priority_level_colour }}">{{ task.priority }}</span></td>
+                        <td><span class="badge badge-{{ task.status.status_colour }}">{{ task.status }}</span></td>
+                        <td>{{ task.assigned_to|user_display:request.user }}</td>
+                        <td>{{ task.created_by|user_display:request.user }}</td>
+                        <td>{{ task.updated_by|user_display:request.user }}</td>
+                        <td>{{ task.created_at|date:"Y-m-d H:i:s" }}</td>
+                        <td>{{ task.updated_at|date:"Y-m-d H:i:s"}}</td>
+                        <td style="white-space: nowrap;"><a href="{% url 'task_details' task.pk %}"><i class="fa fa-eye"></i></a>&nbsp;&nbsp;
+                            {% if task.status.name != 'COMPLETED' %}
+                            <a href="{% url 'task_update' task.pk %}"><i class="fas fa-edit"></i></a>&nbsp;&nbsp;
+                            <a href="{% url 'delete_task' task.pk %}"><i class="fas fa-trash-alt"></i></a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+</div>
+{% endblock content %}

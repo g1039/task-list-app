@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}Update Task{% endblock title %}
+
+{% block content %}
+<div class="container-fluid">
+        <div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-2 text-gray-800">Update Task</h1>
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-body">
+        <div class="row d-flex justify-content-center align-items-center">
+            <div class="col-lg-6">
+                <div class="p-5">
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="form-group row">
+                            <div class="col-sm-12 mb-3 mb-sm-0">
+                                <label><strong>Title:</strong></label>
+                                {% render_field form.title class="form-control form-control-user" placeholder="Title" %}
+                            </div>
+                             <span class="form_error">{{ form.title.errors }}</span>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-sm-12">
+                                <label><strong>Due Date:</strong></label>
+                                {% render_field form.due_date placeholder="Due Date" %}
+                            </div>
+                             <span class="form_error">{{ form.due_date.errors }}</span>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-sm-12 mb-3 mb-sm-0">
+                                <label><strong>Description:</strong></label>
+                                {% render_field form.description class="form-control form-control-user" placeholder="Description" %}
+                            </div>
+                            <span class="form_error">{{ form.description.errors }}</span>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-sm-12 mb-3 mb-sm-0">
+                                <label><strong>Priority:</strong></label>
+                                {% render_field form.priority class="form-control form-control-user" placeholder="Priority" %}
+                            </div>
+                            <span class="form_error">{{ form.priority.errors }}</span>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-sm-12 mb-3 mb-sm-0">
+                                <label><strong>Status:</strong></label>
+                                {% render_field form.status class="form-control form-control-user" placeholder="Status" %}
+                            </div>
+                            <span class="form_error">{{ form.status.errors }}</span>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-sm-12 mb-3 mb-sm-0">
+                                <label><strong>Assigned to:</strong></label>
+                                {% render_field form.assigned_to class="form-control form-control-user" placeholder="Assigned to" %}
+                            </div>
+                            <span class="form_error">{{ form.assigned_to.errors }}</span>
+                        </div>
+                        <button class="btn btn-primary btn-user btn-block">
+                            Save
+                        </button>
+                        {% if user.is_superuser %}
+                        <a href="{% url 'tasks' %}" class="btn btn-secondary btn-user btn-block">
+                            Cancel
+                        </a>
+                        {% else %}
+                        <a href="{% url 'home' %}" class="btn btn-secondary btn-user btn-block">
+                            Cancel
+                        </a>
+                        {% endif %}
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+<script defer type="module">
+    $(document).ready(function () {
+        $('.datepicker').datepicker({
+            format: 'yyyy-mm-dd',
+            autoclose: true,
+            todayHighlight: true
+        });
+    });
+</script>
+{% endblock content %}

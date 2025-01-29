@@ -1,56 +1,77 @@
+{% extends 'base.html' %}
 {% load widget_tweaks %}
 
-<form method="POST">
-    {% csrf_token %}
-    <div>
-        <div>
-            <label><strong>First Name:</strong></label>
-            {% render_field form.first_name class="form-control form-control-user" placeholder="First Name" %}
-        </div>
-    </div>
-    <div>
-            <span class="form_error">{{ form.first_name.errors }}</span>
-        <div>
-            <label><strong>Middle Name:</strong></label>
-            {% render_field form.middle_name class="form-control form-control-user" placeholder="Middle Name" %}
-        </div>
-            <span class="form_error">{{ form.middle_name.errors }}</span>
-    </div>
-    <div>
-        <div>
-            <label><strong>Last Name:</strong></label>
-            {% render_field form.last_name class="form-control form-control-user" placeholder="Last Name" %}
-        </div>
-    </div>
-    <div>
-        <span class="form_error">{{ form.last_name.errors }}</span>
-        <div>
-            <label><strong>Email Address:</strong></label>
-            {% render_field form.email class="form-control form-control-user" placeholder="Email" %}
-        </div>
-            <span class="form_error">{{ form.email.errors }}</span>
-    </div>
-    <div>
-        <div>
-            <label><strong>Password:</strong></label>
-            {% render_field form.password_1 class="form-control form-control-user" placeholder="Password" %}
-        </div>
-    </div>
-    <div>
-        <span class="form_error">{{ form.password_1.errors }}</span>
-        <div>
-            <label><strong>Password Confirmation:</strong></label>
-            {% render_field form.password_2 class="form-control form-control-user" placeholder="Password Confirmation" %}
-        </div>
-            <span class="form_error">{{ form.password_2.errors }}</span>
-    </div>
-    <button type="submit">
-        Sign Up
-    </button>
-</form>
-<div >
-    Or
+{% block title %}Sign Up{% endblock title %}
+
+{% block content %}
+<div class="container-fluid">
+        <div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-2 text-gray-800">Sign Up</h1>
 </div>
-<div>
-    <a class="small" href="{% url 'login' %}">Login</a>
+
+<div class="card shadow mb-4">
+    <div class="card-body">
+        <div class="row d-flex justify-content-center align-items-center">
+            <div class="col-lg-6">
+                <div class="p-5">
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="form-group row">
+                            <div class="col-sm-12">
+                                <label><strong>First Name:</strong></label>
+                                {% render_field form.first_name class="form-control form-control-user" placeholder="First Name" %}
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                             <span class="form_error">{{ form.first_name.errors }}</span>
+                            <div class="col-sm-12">
+                                <label><strong>Middle Name:</strong></label>
+                                {% render_field form.middle_name class="form-control form-control-user" placeholder="Middle Name" %}
+                            </div>
+                             <span class="form_error">{{ form.middle_name.errors }}</span>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-sm-12">
+                                <label><strong>Last Name:</strong></label>
+                                {% render_field form.last_name class="form-control form-control-user" placeholder="Last Name" %}
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <span class="form_error">{{ form.last_name.errors }}</span>
+                            <div class="col-sm-12">
+                                <label><strong>Email Address:</strong></label>
+                                {% render_field form.email class="form-control form-control-user" placeholder="Email" %}
+                            </div>
+                             <span class="form_error">{{ form.email.errors }}</span>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-sm-12">
+                                <label><strong>Password:</strong></label>
+                                {% render_field form.password_1 class="form-control form-control-user" placeholder="Password" %}
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <span class="form_error">{{ form.password_1.errors }}</span>
+                            <div class="col-sm-12">
+                                <label><strong>Password Confirmation:</strong></label>
+                                {% render_field form.password_2 class="form-control form-control-user" placeholder="Password Confirmation" %}
+                            </div>
+                             <span class="form_error">{{ form.password_2.errors }}</span>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-user btn-block">
+                            Sign Up
+                        </button>
+                    </form>
+                    <div class="text-center">
+                        Or
+                    </div>
+                    <div class="text-center">
+                        <a class="small" href="{% url 'login' %}">Login</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+</div>
+{% endblock content %}
