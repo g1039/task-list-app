@@ -3,10 +3,13 @@
 from django.urls import path
 
 from webapp.tasktrack.views import (
+    calendar_view,
     create_task_view,
     dashboard_view,
+    delete_calendar_task,
     delete_task_view,
     home_view,
+    task_calendar_api,
     task_details_view,
     task_update_view,
     task_view,
@@ -20,4 +23,9 @@ urlpatterns = [
     path("task-details/ <int:pk>/", task_details_view, name="task_details"),
     path("task-update/ <int:pk>/", task_update_view, name="task_update"),
     path("delete-task/<int:pk>", delete_task_view, name="delete_task"),
+    path("calendar", calendar_view, name="calendar"),
+    path("api/tasks/", task_calendar_api, name="task_calendar_api"),
+    path(
+        "delete-calendar-task/<int:task_id>/", delete_calendar_task, name="delete_task"
+    ),
 ]

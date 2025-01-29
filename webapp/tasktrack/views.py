@@ -5,7 +5,7 @@ from typing import Any
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import HttpRequest, HttpResponseRedirect
+from django.http import HttpRequest, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse, reverse_lazy
 from django.utils.decorators import method_decorator
@@ -347,8 +347,58 @@ def delete_task_view(request: HttpRequest, pk: int) -> HttpResponseRedirect:
     )
 
 
+@method_decorator(limit_access, name="get")
+class CalendarView(LoginRequiredMixin, TemplateView):
+    """Calendarview."""
+
+    template_name = "pages/calendar.html"
+
+    def get_context_data(self, **kwargs: Any) -> Any:
+        """Add context for the view."""
+
+        context = super().get_context_data(**kwargs)
+
+        return context
+
+
+@login_required
+@require_http_methods(["POST", "GET"])
+@limit_access
+def task_calendar_api(request: HttpRequest) -> Any:
+    """Task api view."""
+
+    tasks = Task.objects.all()
+    events = []
+    for task in tasks:
+        events.append(
+            {
+                "id": task.id,
+                "title": task.title,
+                "start": task.due_date.strftime("%Y-%m-%d"),
+                "description": task.description,
+                "priority": task.priority.name,
+                "priority_level_colour": task.priority.priority_level_colour,
+                "status": task.status.name,
+                "status_colour": task.status.status_colour,
+            }
+        )
+    return JsonResponse(events, safe=False)
+
+
+def delete_calendar_task(request: HttpRequest, task_id: int) -> Any:
+    """Delete task api view."""
+
+    if request.method == "DELETE":
+        task = get_object_or_404(Task, id=task_id)
+        task.delete()
+        return JsonResponse({"message": "Task deleted successfully"}, status=200)
+
+    return JsonResponse({"error": "Invalid request"}, status=400)
+
+
 home_view = HomeView.as_view()
 dashboard_view = DashboardView.as_view()
 task_view = TaskView.as_view()
 create_task_view = CreateTaskView.as_view()
 task_details_view = TaskDetailsView.as_view()
+calendar_view = CalendarView.as_view()
