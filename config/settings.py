@@ -42,10 +42,14 @@ INSTALLED_APPS = [
     # third party
     "widget_tweaks",
     "django_select2",
+    "crispy_forms",
+    "crispy_bootstrap4",
     # local apps
     "webapp.accounts.apps.AccountsConfig",
     "webapp.tasktrack.apps.TasktrackConfig",
 ]
+
+CRISPY_TEMPLATE_PACK = "bootstrap4"
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",

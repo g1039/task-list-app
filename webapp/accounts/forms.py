@@ -44,19 +44,15 @@ class RegistrationForm(forms.Form):
     """User registration form."""
 
     first_name = forms.CharField(
-        help_text="Your first name.",
         required=True,
     )
     middle_name = forms.CharField(
-        help_text="Your middle name.",
         required=False,
     )
     last_name = forms.CharField(
-        help_text="Your last name.",
         required=True,
     )
     email = forms.EmailField(
-        help_text="Your email address.",
         required=True,
     )
     password_1 = forms.CharField(
@@ -103,7 +99,6 @@ class UserPasswordResetForm(PasswordResetForm):
     """User password reset form."""
 
     email = forms.EmailField(
-        help_text="Your email address.",
         required=True,
     )
 
@@ -170,22 +165,18 @@ class ProfileDetailsForm(forms.Form):
     """Read only form with user profile details."""
 
     first_name = forms.CharField(
-        help_text="Your first name.",
         disabled=False,
         required=True,
     )
     middle_name = forms.CharField(
-        help_text="Your middle name.",
         disabled=False,
         required=False,
     )
     last_name = forms.CharField(
-        help_text="Your last name.",
         disabled=False,
         required=True,
     )
     email = forms.EmailField(
-        help_text="Your email address.",
         disabled=False,
         required=True,
     )
