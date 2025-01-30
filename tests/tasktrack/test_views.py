@@ -315,7 +315,7 @@ class TestCreateTaskView:
 
     def test_create_task_form_submission_valid(self, client: Client) -> None:
 
-        user = CustomUserFactory()
+        user = CustomUserFactory(is_superuser=True)
         client.force_login(user)
 
         priority = PriorityFactory()
@@ -348,7 +348,7 @@ class TestCreateTaskView:
 
     def test_create_task_form_submission_invalid(self, client: Client) -> None:
 
-        user = CustomUserFactory()
+        user = CustomUserFactory(is_superuser=True)
         client.force_login(user)
 
         priority = PriorityFactory()
@@ -597,3 +597,167 @@ class TestDeleteTaskView:
 
         assert response.status_code == 302
         assert response.url == reverse("tasks")
+
+
+@pytest.mark.django_db
+class TestTaskCalendarAPI:
+    def test_task_calendar_api_redirects_for_anonymous_user(
+        self, client: Client
+    ) -> None:
+
+        url = reverse("task_calendar_api")
+        response = client.get(url)
+
+        assert response.status_code == 302
+        assert "/login/" in response.url
+
+    def test_authenticated_user_can_fetch_tasks(self, client: Client) -> None:
+
+        user = CustomUserFactory(is_superuser=True)
+        client.force_login(user)
+
+        task = TaskFactory(
+            due_date=datetime.date(2025, 12, 1),
+            created_at=timezone.now().date(),
+            created_by=user,
+            updated_by=user,
+        )
+
+        url = reverse("task_calendar_api")
+        response = client.get(url)
+
+        assert response.status_code == 200
+
+        data = response.json()
+        assert isinstance(data, list)
+        assert len(data) == 1
+
+        task_data = data[0]
+        assert task_data["id"] == task.id
+        assert task_data["title"] == task.title
+        assert task_data["start"] == task.due_date.strftime("%Y-%m-%d")
+        assert task_data["description"] == task.description
+        assert task_data["priority"] == task.priority.name
+        assert task_data["priority_level_colour"] == task.priority.priority_level_colour
+        assert task_data["status"] == task.status.name
+        assert task_data["status_colour"] == task.status.status_colour
+
+    def test_authenticated_user_sees_empty_list_when_no_tasks_exist(
+        self, client: Client
+    ) -> None:
+
+        user = CustomUserFactory(is_superuser=True)
+        client.force_login(user)
+
+        url = reverse("task_calendar_api")
+        response = client.get(url)
+
+        assert response.status_code == 200
+        assert response.json() == []
+
+
+@pytest.mark.django_db
+class TestDeleteCalendarTaskAPI:
+    def test_authenticated_user_can_delete_task(self, client: Client) -> None:
+
+        user = CustomUserFactory(is_superuser=True)
+        client.force_login(user)
+
+        task = TaskFactory(
+            due_date=datetime.date(2025, 12, 1),
+            assigned_to=user,
+            created_at=timezone.now().date(),
+        )
+        url = reverse("delete_calendar_task", kwargs={"task_id": task.id})
+
+        response = client.delete(url)
+
+        assert response.status_code == 200
+        assert response.json() == {"message": "Task deleted successfully"}
+        assert not Task.objects.filter(id=task.id).exists()
+
+    def test_invalid_request_method_returns_error(self, client: Client) -> None:
+
+        user = CustomUserFactory(is_superuser=True)
+        client.force_login(user)
+
+        task = TaskFactory(
+            due_date=datetime.date(2025, 12, 1),
+            assigned_to=user,
+            created_at=timezone.now().date(),
+        )
+        url = reverse("delete_calendar_task", kwargs={"task_id": task.id})
+
+        response = client.get(url)
+
+        assert response.status_code == 400
+        assert response.json() == {"error": "Invalid request"}
+        assert Task.objects.filter(id=task.id).exists()
+
+
+@pytest.mark.django_db
+class TestCreateTaskAPI:
+    def test_create_task_requires_authentication(self, client: Client) -> None:
+
+        url = reverse("create_task")
+        response = client.post(url, data={})
+
+        assert response.status_code == 302
+        assert "/login/" in response.url
+
+    def test_authenticated_user_can_create_task(self, client: Client) -> None:
+
+        user = CustomUserFactory(is_superuser=True)
+        client.force_login(user)
+
+        url = reverse("create_task")
+
+        priority = PriorityFactory()
+        status = StatusFactory(name=StatusType.PENDING)
+        assigned_to = CustomUserFactory()
+
+        form_data = {
+            "title": "New Task",
+            "due_date": datetime.date(2025, 2, 1).isoformat(),
+            "description": "Test task description",
+            "priority": priority.id,
+            "assigned_to": assigned_to.id,
+            "status": status.id,
+        }
+
+        response = client.post(
+            url,
+            data=form_data,
+        )
+
+        assert response.status_code == 302
+        assert Task.objects.count() == 1
+
+        task = Task.objects.first()
+        assert task.title == "New Task"
+        assert task.created_by == user
+        assert task.updated_by == user
+        assert task.status.name == status.name
+
+    def test_create_task_with_invalid_data(self, client: Client) -> None:
+
+        user = CustomUserFactory(is_superuser=True)
+        client.force_login(user)
+
+        url = reverse("create_task")
+
+        priority = PriorityFactory()
+        status = StatusFactory(name=StatusType.PENDING)
+        assigned_to = CustomUserFactory()
+
+        form_data = {
+            "title": "",
+            "due_date": datetime.date(2020, 2, 1).isoformat(),
+            "description": "Test task description",
+            "priority": priority.id,
+            "assigned_to": assigned_to.id,
+            "status": status.id,
+        }
+        response = client.post(url, data=form_data)
+
+        assert response.status_code == 200

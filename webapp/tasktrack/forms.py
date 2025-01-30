@@ -82,3 +82,31 @@ class TaskUpdateForm(forms.ModelForm):
             "status",
             "assigned_to",
         ]
+
+
+class CreateCalendarTaskForm(forms.ModelForm):
+    """Create task form."""
+
+    class Meta:
+        model = Task
+        fields = ["title", "due_date", "description", "priority", "assigned_to"]
+
+        widgets = {
+            "due_date": forms.TextInput(
+                attrs={
+                    "class": "form-control datepicker",
+                    "placeholder": "Select a date",
+                }
+            ),
+            "description": forms.Textarea(),
+        }
+
+    def clean_due_date(self) -> str:
+        """Validate the provided due date."""
+
+        due_date = self.cleaned_data.get("due_date")
+        if due_date and due_date < datetime.date.today():
+            raise forms.ValidationError(
+                "Due date cannot be earlier than the creation date."
+            )
+        return due_date

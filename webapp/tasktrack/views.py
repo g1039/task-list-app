@@ -15,8 +15,12 @@ from django.views.generic.edit import FormView
 
 from webapp.tasktrack import services
 from webapp.tasktrack.enums import StatusType
-from webapp.tasktrack.forms import CreateTaskForm, TaskUpdateForm
-from webapp.tasktrack.models import Task
+from webapp.tasktrack.forms import (
+    CreateCalendarTaskForm,
+    CreateTaskForm,
+    TaskUpdateForm,
+)
+from webapp.tasktrack.models import Status, Task
 from webapp.tasktrack.permissions import limit_access
 
 
@@ -347,20 +351,6 @@ def delete_task_view(request: HttpRequest, pk: int) -> HttpResponseRedirect:
     )
 
 
-@method_decorator(limit_access, name="get")
-class CalendarView(LoginRequiredMixin, TemplateView):
-    """Calendarview."""
-
-    template_name = "pages/calendar.html"
-
-    def get_context_data(self, **kwargs: Any) -> Any:
-        """Add context for the view."""
-
-        context = super().get_context_data(**kwargs)
-
-        return context
-
-
 @login_required
 @require_http_methods(["POST", "GET"])
 @limit_access
@@ -385,6 +375,8 @@ def task_calendar_api(request: HttpRequest) -> Any:
     return JsonResponse(events, safe=False)
 
 
+@login_required
+@limit_access
 def delete_calendar_task(request: HttpRequest, task_id: int) -> Any:
     """Delete task api view."""
 
@@ -396,9 +388,31 @@ def delete_calendar_task(request: HttpRequest, task_id: int) -> Any:
     return JsonResponse({"error": "Invalid request"}, status=400)
 
 
+@login_required
+@require_http_methods(["POST", "GET"])
+@limit_access
+def create_task(request: HttpRequest) -> Any:
+    """Create calendar task."""
+
+    if request.method == "POST":
+        form = CreateCalendarTaskForm(request.POST)
+        if form.is_valid():
+            task = form.save(commit=False)
+            status, _ = Status.objects.get_or_create(name=StatusType.PENDING)
+            task.status = status
+            task.created_by = request.user
+            task.updated_by = request.user
+            task.save()
+            return JsonResponse({"success": True, "task_id": task.id})
+        else:
+            return JsonResponse({"success": False, "errors": form.errors}, status=400)
+
+    form = CreateCalendarTaskForm()
+    return render(request, "pages/calendar.html", {"form": form})
+
+
 home_view = HomeView.as_view()
 dashboard_view = DashboardView.as_view()
 task_view = TaskView.as_view()
 create_task_view = CreateTaskView.as_view()
 task_details_view = TaskDetailsView.as_view()
-calendar_view = CalendarView.as_view()

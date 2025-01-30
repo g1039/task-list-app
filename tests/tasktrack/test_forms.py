@@ -1,11 +1,16 @@
 import datetime
+from typing import Any, Dict
 
 import pytest
 from django.utils import timezone
 
 from tests.accounts.factories import CustomUserFactory
 from tests.tasktrack.factories import PriorityFactory, StatusFactory
-from webapp.tasktrack.forms import CreateTaskForm, TaskUpdateForm
+from webapp.tasktrack.forms import (
+    CreateCalendarTaskForm,
+    CreateTaskForm,
+    TaskUpdateForm,
+)
 
 
 class TestCreateTaskForm:
@@ -73,3 +78,52 @@ class TestTaskUpdateForm:
         assert status[0] == "This field is required."
         assigned_to = form.errors["assigned_to"]
         assert assigned_to[0] == "This field is required."
+
+
+@pytest.mark.django_db
+class TestCreateCalendarTaskForm:
+    def test_valid_form_data(self) -> None:
+
+        priority = PriorityFactory()
+        assigned_to = CustomUserFactory()
+
+        form_data = {
+            "title": "New Task",
+            "due_date": timezone.now().date(),
+            "description": "Test description",
+            "priority": priority,
+            "assigned_to": assigned_to,
+        }
+
+        form = CreateCalendarTaskForm(data=form_data)
+        assert form.is_valid(), form.errors
+
+    def test_invalid_due_date_in_past(self) -> None:
+
+        priority = PriorityFactory()
+        assigned_to = CustomUserFactory()
+
+        form_data = {
+            "title": "New Task",
+            "due_date": datetime.date.today() - datetime.timedelta(days=1),
+            "description": "Test description",
+            "priority": priority,
+            "assigned_to": assigned_to,
+        }
+
+        form = CreateCalendarTaskForm(data=form_data)
+        assert not form.is_valid()
+        assert "due_date" in form.errors
+        assert form.errors["due_date"] == [
+            "Due date cannot be earlier than the creation date."
+        ]
+
+    def test_missing_required_fields(self) -> None:
+
+        form_data: Dict[Any, Any] = {}
+
+        form = CreateCalendarTaskForm(data=form_data)
+        assert not form.is_valid()
+        assert "title" in form.errors
+        assert "priority" in form.errors
+        assert "assigned_to" in form.errors

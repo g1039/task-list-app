@@ -1,46 +1,74 @@
 {% extends 'base.html' %}
-{% load custom_tags %}
+{% load static %}
+{% load custom_tags crispy_forms_tags %}
 
 {% block title %}Calendar{% endblock title %}
 {% block content %}
 <div class="container-fluid">
-
     <div class="card-body">
         <div id="calendar"></div>
     </div>
 
-<div class="modal fade" id="taskModal" tabindex="-1" role="dialog" aria-labelledby="taskModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="taskModalLabel">Task Details</h5>
-                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">×</span>
-                </button>
+    <div class="modal fade" id="taskModal" tabindex="-1" role="dialog" aria-labelledby="taskModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="taskModalLabel">Task Details</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>Title:</strong><br><span id="modalTaskTitle"></span></p>
+                    <p><strong>Description:</strong><br><span id="modalTaskDescription"></span></p>
+                    <p><strong>Priority:</strong><br><span id="modalTaskPriority" class="badge"></span></p>
+                    <p><strong>Status:</strong><br><span id="modalTaskStatus" class="badge"></span></p>
+                </div>
+                <div class="modal-footer">
+                    <button id="deleteTaskButton" class="btn btn-danger">Delete</button>
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Close</button>
+                </div>
             </div>
-            <div class="modal-body">
-                <p><strong>Title:</strong><br><span id="modalTaskTitle"></span></p>
-                <p><strong>Description:</strong><br><span id="modalTaskDescription"></span></p>
-                <p><strong>Priority:</strong><br><span id="modalTaskPriority" class="badge"></span></p>
-                <p><strong>Status:</strong><br><span id="modalTaskStatus" class="badge"></span></p>
-            </div>
-            <div class="modal-footer">
-                <button id="deleteTaskButton" class="btn btn-danger">Delete</button>
-                <button class="btn btn-secondary" type="button" data-dismiss="modal">Close</button>
+        </div>
+    </div>
+
+    <div class="modal fade" id="createTaskModal" tabindex="-1" role="dialog" aria-labelledby="createTaskModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="createTaskModalLabel">Create New Task</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="createTaskForm" method="post">
+                        {% csrf_token %}
+                        {{ form|crispy }}
+                        <button type="submit" class="btn btn-primary">Create Task</button>
+                    </form>
+                    <div id="successMessage" class="alert alert-success mt-3" style="display: none;">
+                        Task created successfully!
+                    </div>
+                    <div id="errorMessage" class="alert alert-danger mt-3" style="display: none;">
+                        Due date cannot be earlier than the creation date.
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         let selectedTaskId = null;
+        let selectedDate = null;
 
         const calendarEl = document.getElementById('calendar');
         const calendar = new FullCalendar.Calendar(calendarEl, {
             initialView: 'dayGridMonth',
             events: '/api/tasks/',
-            eventClick: function(info) {
+            eventClick: function (info) {
                 selectedTaskId = info.event.id;
 
                 document.getElementById('modalTaskTitle').innerText = info.event.title;
@@ -60,8 +88,49 @@
                 const taskModal = new bootstrap.Modal(document.getElementById('taskModal'));
                 taskModal.show();
             },
+            dateClick: function (info) {
+                selectedDate = info.dateStr;
+                document.getElementById('id_due_date').value = selectedDate;
+
+                const createTaskModal = new bootstrap.Modal(document.getElementById('createTaskModal'));
+                createTaskModal.show();
+            }
         });
         calendar.render();
+
+        document.getElementById("createTaskForm").addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            const formData = new FormData(this);
+
+            fetch("/calendar/", {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": getCookie("csrftoken")
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const successMessage = document.getElementById('successMessage');
+                    successMessage.style.display = 'block';
+
+                    let dueDateValue = document.getElementById("id_due_date").value;
+
+                    document.getElementById("createTaskForm").reset();
+
+                    document.getElementById("id_due_date").value = dueDateValue;
+
+                    calendar.refetchEvents();
+
+                } else {
+                    const errorMessage = document.getElementById('errorMessage');
+                    errorMessage.style.display = 'block';
+                }
+            })
+            .catch(error => console.error("Error:", error));
+        });
 
         document.getElementById("deleteTaskButton").addEventListener("click", function() {
             if (selectedTaskId) {
@@ -98,4 +167,5 @@
         }
     });
 </script>
+
 {% endblock content %}
