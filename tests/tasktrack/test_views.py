@@ -140,7 +140,7 @@ class TestDashboardView:
             3,
             status=panding_status,
             priority=low_priority,
-            due_date=timezone.now().date(),
+            due_date=datetime.date(2025, 1, 1),
             created_at=datetime.date(2025, 1, 1),
         )
         TaskFactory.create_batch(
@@ -324,7 +324,7 @@ class TestCreateTaskView:
 
         form_data = {
             "title": "Test Task",
-            "due_date": datetime.date(2025, 2, 1),
+            "due_date": timezone.now().date(),
             "description": "Test task description",
             "priority": priority.id,
             "assigned_to": assigned_to.id,
@@ -333,10 +333,10 @@ class TestCreateTaskView:
 
         response = client.post(reverse("create_task"), data=form_data)
 
-        assert Task.objects.count() == 1
+        assert Task.objects.all().count() == 1
         task = Task.objects.first()
         assert task.title == "Test Task"
-        assert task.due_date == datetime.date(2025, 2, 1)
+        assert task.due_date == timezone.now().date()
         assert task.description == "Test task description"
         assert task.priority == priority
         assert task.status == status
@@ -718,7 +718,7 @@ class TestCreateTaskAPI:
 
         form_data = {
             "title": "New Task",
-            "due_date": datetime.date(2025, 2, 1).isoformat(),
+            "due_date": timezone.now().date(),
             "description": "Test task description",
             "priority": priority.id,
             "assigned_to": assigned_to.id,
